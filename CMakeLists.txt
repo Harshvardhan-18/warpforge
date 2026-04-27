@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
-project(MiniPTX VERSION 0.1.0 LANGUAGES CXX)
+project(WarpForge VERSION 0.3.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Collect all source files
-set(MINIPTX_SOURCES
+set(WARPFORGE_SOURCES
     src/main.cpp
     src/lexer.cpp
     src/parser.cpp
@@ -19,15 +19,15 @@ set(MINIPTX_SOURCES
     src/codegen.cpp
 )
 
-add_executable(miniptx ${MINIPTX_SOURCES})
+add_executable(warpforge ${WARPFORGE_SOURCES})
 
-target_include_directories(miniptx PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(warpforge PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # Enable warnings
 if(MSVC)
-    target_compile_options(miniptx PRIVATE /W4)
+    target_compile_options(warpforge PRIVATE /W4)
 else()
-    target_compile_options(miniptx PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(warpforge PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
 # ═══════════════════════════════════════════════════════════════════
@@ -35,22 +35,22 @@ endif()
 # ═══════════════════════════════════════════════════════════════════
 
 # Paths
-set(MINIPTX_EXE $<TARGET_FILE:miniptx>)
+set(WARPFORGE_EXE $<TARGET_FILE:warpforge>)
 set(PTX_OUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/out)
 set(TESTS_DIR   ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 # Custom commands: compile .ptxc → .ptx using our compiler
 add_custom_command(
     OUTPUT  ${PTX_OUT_DIR}/vec_add.ptx
-    COMMAND ${MINIPTX_EXE} ${TESTS_DIR}/vec_add.ptxc ${PTX_OUT_DIR}/vec_add.ptx
-    DEPENDS miniptx ${TESTS_DIR}/vec_add.ptxc
+    COMMAND ${WARPFORGE_EXE} ${TESTS_DIR}/vec_add.ptxc ${PTX_OUT_DIR}/vec_add.ptx
+    DEPENDS warpforge ${TESTS_DIR}/vec_add.ptxc
     COMMENT "Compiling vec_add.ptxc → vec_add.ptx"
 )
 
 add_custom_command(
     OUTPUT  ${PTX_OUT_DIR}/scalar_mul.ptx
-    COMMAND ${MINIPTX_EXE} ${TESTS_DIR}/scalar_mul.ptxc ${PTX_OUT_DIR}/scalar_mul.ptx
-    DEPENDS miniptx ${TESTS_DIR}/scalar_mul.ptxc
+    COMMAND ${WARPFORGE_EXE} ${TESTS_DIR}/scalar_mul.ptxc ${PTX_OUT_DIR}/scalar_mul.ptx
+    DEPENDS warpforge ${TESTS_DIR}/scalar_mul.ptxc
     COMMENT "Compiling scalar_mul.ptxc → scalar_mul.ptx"
 )
 
@@ -81,7 +81,7 @@ if(CUDAToolkit_FOUND)
             ${PTX_OUT_DIR}/scalar_mul.ptx
         DEPENDS validate_bin compile_ptx
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMENT "Running MiniPTX validation suite"
+        COMMENT "Running WarpForge validation suite"
     )
 else()
     message(STATUS "CUDA not found — validation target disabled")
@@ -90,8 +90,8 @@ else()
     # Provide a manual build script as fallback
     add_custom_target(validate
         COMMAND ${CMAKE_COMMAND} -E echo "=== Manual validation ==="
-        COMMAND ${CMAKE_COMMAND} -E echo "1. Compile PTX:  miniptx tests/vec_add.ptxc out/vec_add.ptx"
-        COMMAND ${CMAKE_COMMAND} -E echo "2. Compile PTX:  miniptx tests/scalar_mul.ptxc out/scalar_mul.ptx"
+        COMMAND ${CMAKE_COMMAND} -E echo "1. Compile PTX:  warpforge tests/vec_add.ptxc -o out/vec_add.ptx"
+        COMMAND ${CMAKE_COMMAND} -E echo "2. Compile PTX:  warpforge tests/scalar_mul.ptxc -o out/scalar_mul.ptx"
         COMMAND ${CMAKE_COMMAND} -E echo "3. Build:  nvcc -o validate tests/validate.cu -lcuda"
         COMMAND ${CMAKE_COMMAND} -E echo "4. Run:    validate out/vec_add.ptx out/scalar_mul.ptx"
         DEPENDS compile_ptx

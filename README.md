@@ -1,4 +1,4 @@
-# Warpforge
+# WarpForge
 
 A domain-specific compiler that translates a C-like GPU kernel language (`.ptxc`) into NVIDIA PTX assembly. Built from scratch in C++17 with no external dependencies.
 
@@ -10,6 +10,7 @@ A domain-specific compiler that translates a C-like GPU kernel language (`.ptxc`
 - **Chaitin-Briggs graph-coloring register allocator** with type-aware interference graphs
 - **PTX 7.0 code generation** targeting `sm_80` with debug `.loc` directives
 - **CUDA Driver API validation harness** for end-to-end GPU testing
+- **Interactive web visualizer** (Next.js) for exploring every pipeline stage
 
 ## Build
 
@@ -18,12 +19,12 @@ cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
 ```
 
-The compiler binary is at `build/Release/miniptx` (Windows) or `build/miniptx` (Linux/Mac).
+The compiler binary is at `build/Release/warpforge.exe` (Windows) or `build/warpforge` (Linux/Mac).
 
 ## Usage
 
 ```
-miniptx [options] <input.ptxc>
+warpforge [options] <input.ptxc>
 ```
 
 ### Emit Options
@@ -48,33 +49,33 @@ miniptx [options] <input.ptxc>
 
 ```bash
 # Default: compile and print PTX to stdout
-miniptx tests/vec_add.ptxc
+warpforge tests/vec_add.ptxc
 
 # Save PTX to file
-miniptx tests/vec_add.ptxc -o out/vec_add.ptx
+warpforge tests/vec_add.ptxc -o out/vec_add.ptx
 
 # Inspect token stream
-miniptx --emit-tokens tests/vec_add.ptxc
+warpforge --emit-tokens tests/vec_add.ptxc
 
 # Dump AST
-miniptx --emit-ast tests/vec_add.ptxc
+warpforge --emit-ast tests/vec_add.ptxc
 
 # View IR before/after optimisation
-miniptx --emit-ir tests/vec_add.ptxc
-miniptx --emit-ir-opt tests/vec_add.ptxc
+warpforge --emit-ir tests/vec_add.ptxc
+warpforge --emit-ir-opt tests/vec_add.ptxc
 
 # View register allocation details
-miniptx --emit-regalloc tests/vec_add.ptxc
+warpforge --emit-regalloc tests/vec_add.ptxc
 
 # Compile without optimisations
-miniptx --no-opt tests/vec_add.ptxc -o out/vec_add_noopt.ptx
+warpforge --no-opt tests/vec_add.ptxc -o out/vec_add_noopt.ptx
 ```
 
 ## Compiler Pipeline
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     MiniPTX Compiler Pipeline                   │
+│                     WarpForge Compiler Pipeline                 │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  source.ptxc                                                    │
@@ -133,7 +134,7 @@ miniptx --no-opt tests/vec_add.ptxc -o out/vec_add_noopt.ptx
 
 ## Register Allocator
 
-MiniPTX uses the **Chaitin-Briggs** graph-coloring algorithm for register allocation, the same approach used in production compilers like GCC and LLVM.
+WarpForge uses the **Chaitin-Briggs** graph-coloring algorithm for register allocation, the same approach used in production compilers like GCC and LLVM.
 
 ### Register Classes
 
@@ -158,15 +159,18 @@ PTX has typed virtual registers. The allocator maintains four independent regist
 
 5. **Select** — Pop nodes from the stack and assign the lowest available color not used by any already-colored neighbor.
 
-### Example Output
+## Web Visualizer
 
-For `vec_add` with 4 parameters and 10 temporaries, the allocator produces:
+An interactive Next.js app for exploring every compiler stage visually.
+
+```bash
+cd miniptx-visualizer
+npm install
+npm run dev
+# Open http://localhost:3000
 ```
-.reg .s32  %r<4>;     // 4 integer registers (reused via coloring)
-.reg .f32  %f<2>;     // 2 float registers
-.reg .u64  %rd<3>;    // 3 pointer registers (one per param)
-.reg .pred %p<1>;     // 1 predicate register
-```
+
+Supports: token stream, AST tree, IR basic blocks, optimised IR diff, interference graph, and PTX output with syntax highlighting.
 
 ## GPU Validation
 
@@ -186,7 +190,7 @@ The harness JIT-compiles PTX via `cuModuleLoadDataEx`, launches kernels with ran
 ## Project Structure
 
 ```
-mini-ptx/
+warpforge/
 ├── CMakeLists.txt
 ├── README.md
 ├── src/
@@ -206,6 +210,11 @@ mini-ptx/
 │   ├── vec_add.ptxc      # Vector addition kernel
 │   ├── scalar_mul.ptxc   # Element-wise squaring kernel
 │   └── validate.cu       # CUDA Driver API test harness
+├── miniptx-visualizer/   # Next.js web visualizer
+│   ├── app/
+│   ├── components/
+│   ├── store/
+│   └── lib/
 └── out/                   # Generated .ptx files
 ```
 

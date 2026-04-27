@@ -75,8 +75,8 @@ static Options parseArgs(int argc, char* argv[]) {
 
 static void printUsage() {
     std::cerr <<
-        "MiniPTX Compiler v0.3\n\n"
-        "Usage: miniptx [options] <input.ptxc>\n\n"
+        "WarpForge Compiler v0.3\n\n"
+        "Usage: warpforge [options] <input.ptxc>\n\n"
         "Emit options (if none given, --emit-ptx is default):\n"
         "  --emit-tokens    Print lexer token stream and exit\n"
         "  --emit-ast       Print AST dump and exit\n"
