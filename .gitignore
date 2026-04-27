@@ -1,7 +1,35 @@
+# Build and Output Directories
 build/
 out/
+
+# Compiled files and executables
 *.exe
 *.obj
 *.pdb
+*.dll
+*.lib
+*.o
+*.a
+
+# Generated PTX Assembly
+*.ptx
+
+# CMake generated artifacts (if run outside of build dir)
 CMakeCache.txt
 CMakeFiles/
+Makefile
+cmake_install.cmake
+compile_commands.json
+
+# IDE / Editor folders
+.vs/
+.vscode/
+*.sln
+*.vcxproj
+*.vcxproj.*
+*.suo
+*.user
+
+# OS generated files
+.DS_Store
+Thumbs.db
