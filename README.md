@@ -1,4 +1,4 @@
-# MiniPTX Compiler
+# Warpforge
 
 A domain-specific compiler that translates a C-like GPU kernel language (`.ptxc`) into NVIDIA PTX assembly. Built from scratch in C++17 with no external dependencies.
 
