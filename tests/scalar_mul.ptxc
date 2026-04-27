@@ -1,0 +1,7 @@
+// scalar_mul.ptxc — Multiply every element of array by a scalar
+kernel void scalar_mul(float* arr, float* out, int n) {
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+    if (tid < n) {
+        out[tid] = arr[tid] * arr[tid];
+    }
+}
